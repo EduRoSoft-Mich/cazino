@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felicitări!</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #282c34;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Felicitări!</h1>
+        <p>Ai câștigat cu codul: <span id="codCastigator"></span></p>
+        <p>ai castigat 20 lei</p>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const cod = urlParams.get('cod');
+        document.getElementById('codCastigator').textContent = cod || '000000';
+    </script>
+</body>
+</html>

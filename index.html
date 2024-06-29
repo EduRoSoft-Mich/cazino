@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cazinou Online</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #282c34;
+            color: white;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+        .container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .cub {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .coloana {
+            margin: 0 10px;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 10px;
+            font-size: 2em;
+            transition: transform 0.3s ease-in-out;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            border-radius: 50px;
+            background-color: #61dafb;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #21a1f1;
+        }
+        input {
+            padding: 10px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .mesaj-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
+        .mesaj {
+            color: #fff;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .buton-ok {
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            background-color: #61dafb;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .buton-ok:hover {
+            background-color: #21a1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="containerStart">
+        <h2>Introdu codul pentru a porni jocul:</h2>
+        <input type="text" id="codInput" maxlength="6" placeholder="Introdu codul aici">
+        <button onclick="verificaCod()">Verifică</button>
+    </div>
+
+    <div class="container" id="containerJoc" style="display: none;">
+        <div id="numarIncercari" style="margin-bottom: 10px;">3 încercări rămase</div>
+        <div class="cub" id="cub">
+            <div class="coloana" id="coloana1">0</div>
+            <div class="coloana" id="coloana2">0</div>
+            <div class="coloana" id="coloana3">0</div>
+        </div>
+        <button onclick="start()">Start</button>
+    </div>
+
+    <div id="mesajContainer" class="mesaj-container">
+        <div id="mesajText" class="mesaj"></div>
+        <button class="buton-ok" onclick="inchideMesaj()">OK</button>
+    </div>
+
+    <div id="divRestart" class="container" style="display: none;">
+        <h2>Ai epuizat toate încercările!</h2>
+        <button onclick="restartGame()">Restart Game</button>
+    </div>
+
+    <script>
+      let coduriValideMap = {
+            "189020": 0.1,
+            "903099": 0.2,
+            "456789": 0.05,
+            "112233": 0.50,
+            "334455": 0.15,
+            "987654": 0.3,
+            "543210": 0.25,
+            "777888": 0.05,
+            "888999": 0.15,
+            "999111": 0.2,
+            "111333": 0.1,
+            "222444": 0.05,
+            "333666": 0.2,
+            "444777": 0.1,
+            "555888": 0.15,
+            "666999": 0.25,
+            "123456789": 0.1,
+            "987654321": 0.05,
+            "135792468": 0.15,
+            "246813579": 0.2
+        };
+        
+
+        let numarIncercari = 3; // Numărul inițial de încercări
+
+        function verificaCod() {
+            const codInput = document.getElementById('codInput').value;
+            const containerStart = document.getElementById('containerStart');
+            const containerJoc = document.getElementById('containerJoc');
+            const mesajContainer = document.getElementById('mesajContainer');
+            const mesajText = document.getElementById('mesajText');
+            const divRestart = document.getElementById('divRestart');
+
+            // Verificăm dacă codul a fost deja folosit
+            let coduriFolosite = JSON.parse(localStorage.getItem('coduriFolosite')) || [];
+            if (coduriFolosite.includes(codInput)) {
+                mesajText.textContent = 'Codul introdus a fost deja folosit anterior.';
+                mesajContainer.style.display = 'block';
+                return;
+            }
+
+            if (coduriValideMap.hasOwnProperty(codInput)) {
+                containerStart.style.display = 'none';
+                containerJoc.style.display = 'block';
+                mesajContainer.style.display = 'none';
+
+                // Salvăm codul folosit în localStorage
+                coduriFolosite.push(codInput);
+                localStorage.setItem('coduriFolosite', JSON.stringify(coduriFolosite));
+
+                document.getElementById('codInput').value = ''; // Resetăm valoarea input-ului
+            } else {
+                mesajText.textContent = 'Codul introdus nu este valid. Te rugăm să introduci un cod corect.';
+                mesajContainer.style.display = 'block';
+                document.getElementById('codInput').value = '';
+            }
+        }
+
+        function start() {
+            if (numarIncercari === 0) {
+                document.getElementById('divRestart').style.display = 'block';
+                document.getElementById('containerJoc').style.display = 'none';
+                return;
+            }
+
+            numarIncercari--; // Scade numărul de încercări rămase
+            document.getElementById('numarIncercari').textContent = `${numarIncercari} încercări rămase`;
+
+            const cuburi = [
+                document.getElementById('coloana1'),
+                document.getElementById('coloana2'),
+                document.getElementById('coloana3')
+            ];
+
+            const codInput = document.getElementById('codInput').value;
+            const posibilitate = coduriValideMap[codInput] || 0;
+
+            cuburi.forEach(cub => {
+                cub.style.transform = 'rotateX(360deg)';
+
+                let numar = Math.random();
+                if (numar < posibilitate) {
+                    numar = 7;
+                } else {
+                    numar = Math.floor(Math.random() * (9 - 5) + 5);
+                }
+
+                setTimeout(() => {
+                    cub.textContent = numar;
+                    cub.style.transform = 'rotateX(0deg)';
+                }, 300);
+            });
+
+            setTimeout(() => {
+                let rezultat = cuburi.map(cub => cub.textContent).join('');
+                if (rezultat === '777') {
+                    window.location.href = `win.html?cod=${codInput}`;
+                } else {
+                    if (numarIncercari === 0) {
+                        document.getElementById('divRestart').style.display = 'block';
+                        document.getElementById('containerJoc').style.display = 'none';
+                    }
+                }
+            }, 400);
+        }
+
+        function inchideMesaj() {
+            document.getElementById('mesajContainer').style.display = 'none';
+        }
+
+        function restartGame() {
+            document.getElementById('divRestart').style.display = 'none';
+            document.getElementById('containerStart').style.display = 'block';
+            numarIncercari = 3; // Resetăm numărul de încercări
+            document.getElementById('numarIncercari').textContent = `${numarIncercari} încercări rămase`;
+        }
+    </script>
+</body>
+</html>
